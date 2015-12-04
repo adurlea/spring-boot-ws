@@ -15,8 +15,8 @@
     </Appenders>
     <Loggers>
         <Logger name="com.emailvision" level="DEBUG" />
-        <Logger name="org.springframework" level="TRACE" />
-        <Logger name="org.springframework.boot" level="TRACE" />
+        <Logger name="org.springframework" level="ERROR" />
+        <Logger name="org.springframework.boot" level="WARN" />
         <Root level="WARN">
             <AppenderRef ref="ASYNC"/>
         </Root>
