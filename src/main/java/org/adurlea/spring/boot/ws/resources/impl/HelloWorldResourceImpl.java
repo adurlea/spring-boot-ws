@@ -13,6 +13,6 @@ public class HelloWorldResourceImpl implements HelloWorldResource {
 
     @Override
     public Response getHelloWorld() {
-        return Response.ok().entity("{'Hello':'World'}").build();
+        return Response.ok().entity("{\"Hello\":\"World\"}").build();
     }
 }
