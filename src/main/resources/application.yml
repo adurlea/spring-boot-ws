@@ -3,9 +3,6 @@
 # See http://codebeautify.org/yaml-validator
 
 # APPLICATION SETTINGS
-spring:
-    main.show-banner: false
-    main.web-environment: true
 
 # Jersey
 spring.jersey.type: servlet
@@ -13,4 +10,4 @@ spring.jersey.type: servlet
 # LOGGING
 logging.path: /var/log/tomcat
 logging.file: spring-boot-ws.log
-logging.config: /etc/conf/spring-boot-ws/log4j2.xml
+logging.config: ./src/main/resources/log4j2.xml

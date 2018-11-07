@@ -15,5 +15,5 @@ import javax.ws.rs.core.Response;
 public interface HelloWorldResource {
 
     @GET
-    public Response getHelloWorld();
+    Response getHelloWorld();
 }
