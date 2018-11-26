@@ -18,4 +18,12 @@ public interface BasicJacksonMarshallingResource {
     @Path("/jsonAnyGetter")
     Response getJsonAnyGetter();
 
+    @GET
+    @Path("/jsonGetter")
+    Response getJsonGetter();
+
+    @GET
+    @Path("/jsonPropertyOrder")
+    Response getJsonPropertyOrder();
+
 }

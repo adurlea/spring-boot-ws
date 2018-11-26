@@ -2,13 +2,16 @@ package org.adurlea.spring.boot.ws.entities;
 
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.Map;
 
 /**
  * Created by adurlea on 23/11/18.
  */
-public class BasicJacksonMarshallingBean {
+public class JsonAnyGetterBean {
     private String name;
 
     private Map<String, String> propertiesJsonAnyGetter;
@@ -38,5 +41,20 @@ public class BasicJacksonMarshallingBean {
 
     public void setPropertiesNoJsonAnyGetter(Map<String, String> propertiesNoJsonAnyGetter) {
         this.propertiesNoJsonAnyGetter = propertiesNoJsonAnyGetter;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
+    }
+
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj);
     }
 }

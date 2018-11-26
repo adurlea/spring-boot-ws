@@ -1,6 +1,8 @@
 package org.adurlea.spring.boot.ws.resources.impl;
 
-import org.adurlea.spring.boot.ws.entities.BasicJacksonMarshallingBean;
+import org.adurlea.spring.boot.ws.entities.JsonAnyGetterBean;
+import org.adurlea.spring.boot.ws.entities.JsonGetterBean;
+import org.adurlea.spring.boot.ws.entities.JsonPropertyOrderBean;
 import org.adurlea.spring.boot.ws.resources.BasicJacksonMarshallingResource;
 import org.springframework.stereotype.Component;
 
@@ -16,21 +18,42 @@ public class BasicJacksonMarshallingResourceImpl implements BasicJacksonMarshall
 
     @Override
     public Response getJsonAnyGetter() {
-        BasicJacksonMarshallingBean bean = new BasicJacksonMarshallingBean();
+        JsonAnyGetterBean bean = new JsonAnyGetterBean();
         bean.setName("@JsonAnyGetter: When used the elements of a Map will be shown as single json plain properties " +
                 "and no as a collection of json plain properties! " +
-                "See difference between propertiesJsonAnyGetter = [(attr1, val1),(attr2, val2)] " +
-                "and propertiesNoJsonAnyGetter = [(attr1No, val1No),(attr2No, val2No)] ");
+                "See difference between propertiesJsonAnyGetter = [(JsonAnyGetter1, JsonAnyGetterVal1)," +
+                "(JsonAnyGetter2, JsonAnyGetterVal2)] " +
+                "and propertiesNoJsonAnyGetter = [(JsonAnyGetter1No, JsonAnyGetterVal1No)," +
+                "(JsonAnyGetter2No, JsonAnyGetterVal2No)] ");
         Map<String, String> properties = new HashMap<>();
-        properties.put("attr1", "val1");
-        properties.put("attr2", "val2");
+        properties.put("JsonAnyGetter1", "JsonAnyGetterVal1");
+        properties.put("JsonAnyGetter2", "JsonAnyGetterVal2");
         bean.setProperties(properties);
 
         Map<String, String> propertiesNo = new HashMap<>();
-        propertiesNo.put("attr1No", "val1No");
-        propertiesNo.put("attr2No", "val2No");
+        propertiesNo.put("JsonAnyGetter1No", "JsonAnyGetterVal1No");
+        propertiesNo.put("JsonAnyGetter2No", "JsonAnyGetterVal2No");
         bean.setPropertiesNoJsonAnyGetter(propertiesNo);
 
+        return Response.ok().entity(bean).build();
+    }
+
+    @Override
+    public Response getJsonGetter() {
+        JsonGetterBean bean = new JsonGetterBean();
+        bean.setId(1);
+        bean.setNameJsonGetter("Contains @JsonGetter on the theNameJsonGetter method and will be shown as response");
+        bean.setNameNoJsonGetter(
+                "Doesn't contains @JsonGetter on the theNameNoJsonGetter method and will not be shown as response");
+
+        return Response.ok().entity(bean).build();
+    }
+
+    @Override
+    public Response getJsonPropertyOrder() {
+        JsonPropertyOrderBean bean = new JsonPropertyOrderBean(1,
+                "Using @JsonPropertyOrder will show this as first element on the result " +
+                        "even if it is declared as 2nd element");
         return Response.ok().entity(bean).build();
     }
 }
