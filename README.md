@@ -1,11 +1,29 @@
 # spring-boot-ws
-WS using spring boot, jersey 2 and Jackson
+The goal of the project is to build an restful WS with:
+- Spring Boot
+- Docker
+- Jersey 2 
+- Jackson
 
-# HelloWorldResourceImpl 
+The project will show:
+ - the power of Jackson Annotations for serialisation of JSON
 
-Endpoint localhost:8080/helloWorld to get the hello world message 
+The build can produce an jar, an war and an docker container.
+We can execute the project via :
+ - maven spring boot execution 
+ - container docker
+ - Tomcat using the packed war
+ 
+ 
+# Resources 
 
-#BasicJacksonMarshalling
+## HelloWorldResourceImpl 
+
+Endpoint to get the hello world message
+
+    localhost:8080/helloWorld  
+
+## BasicJacksonMarshallingResourceImpl 
 
 #### @JsonAnyGetter
 
@@ -16,7 +34,9 @@ Endpoint localhost:8080/helloWorld to get the hello world message
         AND 
         propertiesNoJsonAnyGetter = [(JsonAnyGetter1No, JsonAnyGetterVal1No),(JsonAnyGetter2No, JsonAnyGetterVal2No)] 
 
-Endpoint localhost:8080/basicJacksonMarshalling/jsonAnyGetter
+Endpoint 
+
+    localhost:8080/basicJacksonMarshalling/jsonAnyGetter
 
 #### @JsonGetter
 
@@ -30,7 +50,9 @@ Endpoint localhost:8080/basicJacksonMarshalling/jsonAnyGetter
         nameNoJsonGetter with the getter methode : public String theNameNoJsonGetter() 
             will not be shown as result                                            
 
-Endpoint localhost:8080/basicJacksonMarshalling/jsonGetter
+Endpoint 
+
+    localhost:8080/basicJacksonMarshalling/jsonGetter
 
 #### @JsonPropertyOrder
 
@@ -39,7 +61,18 @@ Endpoint localhost:8080/basicJacksonMarshalling/jsonGetter
     We declare the elements in the order: id, name 
     but we will specify the following order: name, id                              
 
-Endpoint localhost:8080/basicJacksonMarshalling/jsonPropertyOrder
+Endpoint 
 
-# run
-mvn spring-boot:run
+    localhost:8080/basicJacksonMarshalling/jsonPropertyOrder
+
+# Run and Build
+## DOCKER
+### build docker image with maven
+    mvn clean install dockerfile:build
+### build docker image with docker
+    docker image build --tag adurlea/spring-boot-ws:{project.version} .
+### run with docker
+    docker run -p 8080:8080 adurlea/spring-boot-ws
+
+## with maven and spring boot
+    mvn spring-boot:run

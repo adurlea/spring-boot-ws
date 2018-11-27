@@ -10,4 +10,4 @@ spring.jersey.type: servlet
 # LOGGING
 logging.path: /var/log/tomcat
 logging.file: spring-boot-ws.log
-logging.config: ./src/main/resources/log4j2.xml
+#logging.config: ./src/main/resources/log4j2.xml
