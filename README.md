@@ -1,5 +1,5 @@
 # spring-boot-ws
-The goal of the project is to build an restful WS with:
+The goal of the project is to build an RESTful WS with:
 - Spring Boot
 - Docker
 - Jersey 2 
