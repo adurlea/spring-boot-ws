@@ -1,10 +1,10 @@
 package org.adurlea.spring.boot.ws.resources.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.adurlea.spring.boot.ws.conf.SpringBootWsApplication;
-import org.adurlea.spring.boot.ws.entities.JsonAnyGetterBean;
-import org.adurlea.spring.boot.ws.entities.JsonGetterBean;
-import org.adurlea.spring.boot.ws.entities.JsonPropertyOrderBean;
+import org.adurlea.spring.boot.ws.entities.*;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,8 +39,8 @@ public class BasicJacksonMarshallingResourceImplTest {
     @Test
     public void when_getJsonAnyGetter() throws Exception {
         // GIVEN
-        JsonAnyGetterBean expectedBean = new JsonAnyGetterBean();
-        expectedBean.setName("@JsonAnyGetter: When used the elements of a Map will be shown as single json plain properties " +
+        JsonAnyGetterBean bean = new JsonAnyGetterBean();
+        bean.setName("@JsonAnyGetter: When used the elements of a Map will be shown as single json plain properties " +
                 "and no as a collection of json plain properties! " +
                 "See difference between propertiesJsonAnyGetter = [(JsonAnyGetter1, JsonAnyGetterVal1)," +
                 "(JsonAnyGetter2, JsonAnyGetterVal2)] " +
@@ -49,14 +49,14 @@ public class BasicJacksonMarshallingResourceImplTest {
         Map<String, String> properties = new HashMap<>();
         properties.put("JsonAnyGetter1", "JsonAnyGetterVal1");
         properties.put("JsonAnyGetter2", "JsonAnyGetterVal2");
-        expectedBean.setProperties(properties);
+        bean.setProperties(properties);
 
         Map<String, String> propertiesNo = new HashMap<>();
         propertiesNo.put("JsonAnyGetter1No", "JsonAnyGetterVal1No");
         propertiesNo.put("JsonAnyGetter2No", "JsonAnyGetterVal2No");
-        expectedBean.setPropertiesNoJsonAnyGetter(propertiesNo);
+        bean.setPropertiesNoJsonAnyGetter(propertiesNo);
 
-        String expectedJson = new ObjectMapper().writeValueAsString(expectedBean);
+        String expectedJson = getExpectedJson(bean, false);
 
 
         // WHEN
@@ -72,7 +72,7 @@ public class BasicJacksonMarshallingResourceImplTest {
     }
 
     @Test
-    public void when_getJsonGetter() {
+    public void when_getJsonGetter() throws Exception {
         // GIVEN
         JsonGetterBean expectedBean = new JsonGetterBean();
         expectedBean.setId(1);
@@ -93,11 +93,11 @@ public class BasicJacksonMarshallingResourceImplTest {
     @Test
     public void when_getJsonPropertyOrder() throws Exception {
         // GIVEN
-        JsonPropertyOrderBean expectedBean = new JsonPropertyOrderBean(1,
+        JsonPropertyOrderBean bean = new JsonPropertyOrderBean(1,
                 "Using @JsonPropertyOrder will show this as first element on the result " +
                         "even if it is declared as 2nd element");
 
-        String expectedJson = new ObjectMapper().writeValueAsString(expectedBean);
+        String expectedJson = getExpectedJson(bean, false);
 
         // WHEN
         ResponseEntity<String> entity = restTemplate.getForEntity(MessageFormat.format(URL,
@@ -110,4 +110,76 @@ public class BasicJacksonMarshallingResourceImplTest {
         Assert.assertNotNull(resultedJson);
         Assert.assertEquals(expectedJson, resultedJson);
     }
+
+    @Test
+    public void when_getJsonRawValue() throws Exception {
+        // GIVEN
+        JsonRawValueBean bean = new JsonRawValueBean("Using @JsonRawValue we can inject raw json in an variable " +
+                "and having it serialised as collection of plain elements for the variable element in the json response. " +
+                "See difference between element [jsonRawValue] and [jsonNoRawValue]");
+        bean.setJsonRawValue("{\"JsonRawValueAttr\":\"JsonRawValueVal\"}");
+        bean.setJsonNoRawValue("{\"JsonNoRawValueAttr\":\"JsonNoRawValueVal\"}");
+
+        String expectedJson = getExpectedJson(bean, false);
+
+        // WHEN
+        ResponseEntity<String> entity = restTemplate.getForEntity(MessageFormat.format(URL,
+                String.valueOf(this.port), "jsonRawValue"), String.class);
+
+        // THEN
+        Assert.assertNotNull(entity);
+        Assert.assertEquals(Response.ok().build().getStatus(), entity.getStatusCodeValue());
+        String resultedJson = entity.getBody();
+        Assert.assertNotNull(resultedJson);
+        Assert.assertEquals(expectedJson, resultedJson);
+    }
+
+    @Test
+    public void when_getJsonValue() throws Exception {
+        // GIVEN
+        String expectedJson = getExpectedJson(JsonValueEnum.JSON_VALUE_1, false);
+
+        // WHEN
+        ResponseEntity<String> entity = restTemplate.getForEntity(MessageFormat.format(URL,
+                String.valueOf(this.port), "jsonValue"), String.class);
+
+        // THEN
+        Assert.assertNotNull(entity);
+        Assert.assertEquals(Response.ok().build().getStatus(), entity.getStatusCodeValue());
+        String resultedJson = entity.getBody();
+        Assert.assertNotNull(resultedJson);
+        Assert.assertEquals(expectedJson, resultedJson);
+    }
+
+    @Test
+    public void when_getJsonRootName() throws Exception {
+        // GIVEN
+        JsonRootNameBean bean = new JsonRootNameBean();
+        bean.setId(1);
+        bean.setName("Using @JsonRootName, when wrapping is enabled, allow you to specify the root name to use in the " +
+                "serialisation of the entity. " +
+                "In this example I used @JsonRootName(\"explication\") on the bean JsonRootNameBean " +
+                "This means that instead of serializing something like " +
+                "{\"JsonRootNameBean\" : { \"id\": 1, \"name\": \"some explication\" } }  we will have " +
+                "{ \"explication\" : { \"id\": 1, \"name\": \"some explication\" } }");
+
+        String expectedJson = getExpectedJson(bean, true);
+
+        // WHEN
+        ResponseEntity<String> entity = restTemplate.getForEntity(MessageFormat.format(URL,
+                String.valueOf(this.port), "jsonRootName"), String.class);
+
+        // THEN
+        Assert.assertNotNull(entity);
+        Assert.assertEquals(Response.ok().build().getStatus(), entity.getStatusCodeValue());
+        String resultedJson = entity.getBody();
+        Assert.assertNotNull(resultedJson);
+        Assert.assertEquals(expectedJson, resultedJson);
+    }
+
+    private String getExpectedJson(Object bean, boolean isWrapEnabled) throws JsonProcessingException {
+        return new
+                ObjectMapper().configure(SerializationFeature.WRAP_ROOT_VALUE, isWrapEnabled).writeValueAsString(bean);
+    }
+
 }

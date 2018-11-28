@@ -1,14 +1,21 @@
 package org.adurlea.spring.boot.ws.resources.impl;
 
-import org.adurlea.spring.boot.ws.entities.JsonAnyGetterBean;
-import org.adurlea.spring.boot.ws.entities.JsonGetterBean;
-import org.adurlea.spring.boot.ws.entities.JsonPropertyOrderBean;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.module.mrbean.MrBeanModule;
+import org.adurlea.spring.boot.ws.entities.*;
 import org.adurlea.spring.boot.ws.resources.BasicJacksonMarshallingResource;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+import static com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT;
+import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
+import static com.fasterxml.jackson.databind.SerializationFeature.*;
+import static com.fasterxml.jackson.databind.SerializationFeature.WRAP_ROOT_VALUE;
 
 /**
  * Created by adurlea on 23/11/18.
@@ -55,5 +62,48 @@ public class BasicJacksonMarshallingResourceImpl implements BasicJacksonMarshall
                 "Using @JsonPropertyOrder will show this as first element on the result " +
                         "even if it is declared as 2nd element");
         return Response.ok().entity(bean).build();
+    }
+
+    @Override
+    public Response getJsonRawValue() {
+        JsonRawValueBean bean = new JsonRawValueBean("Using @JsonRawValue we can inject raw json in an variable " +
+        "and having it serialised as collection of plain elements for the variable element in the json response. " +
+                "See difference between element [jsonRawValue] and [jsonNoRawValue]");
+        bean.setJsonRawValue("{\"JsonRawValueAttr\":\"JsonRawValueVal\"}");
+        bean.setJsonNoRawValue("{\"JsonNoRawValueAttr\":\"JsonNoRawValueVal\"}");
+        return Response.ok().entity(bean).build();
+    }
+
+    @Override
+    public Response getJsonValue() {
+        return Response.ok().entity(JsonValueEnum.JSON_VALUE_1).build();
+    }
+
+    @Override
+    public Response getJsonRootName() {
+        JsonRootNameBean bean = new JsonRootNameBean();
+        bean.setId(1);
+        bean.setName("Using @JsonRootName, when wrapping is enabled, allow you to specify the root name to use in the " +
+                "serialisation of the entity. " +
+                "In this example I used @JsonRootName(\"explication\") on the bean JsonRootNameBean " +
+                "This means that instead of serializing something like " +
+                "{\"JsonRootNameBean\" : { \"id\": 1, \"name\": \"some explication\" } }  we will have " +
+                "{ \"explication\" : { \"id\": 1, \"name\": \"some explication\" } }");
+
+        String beanJson;
+        try {
+            beanJson = new ObjectMapper()
+                    .disable(FAIL_ON_EMPTY_BEANS)
+                    .disable(WRITE_DATES_AS_TIMESTAMPS)
+                    .disable(FAIL_ON_UNKNOWN_PROPERTIES)
+                    .enable(ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
+                    .enable(WRAP_ROOT_VALUE)
+                    .registerModule(new MrBeanModule())
+                    .setSerializationInclusion(NON_NULL).writeValueAsString(bean);
+        } catch (JsonProcessingException e) {
+            return Response.serverError().entity("Error serializing bean").build();
+        }
+
+        return Response.ok().entity(beanJson).build();
     }
 }

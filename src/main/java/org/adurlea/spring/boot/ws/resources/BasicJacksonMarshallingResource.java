@@ -1,5 +1,7 @@
 package org.adurlea.spring.boot.ws.resources;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -26,4 +28,15 @@ public interface BasicJacksonMarshallingResource {
     @Path("/jsonPropertyOrder")
     Response getJsonPropertyOrder();
 
+    @GET
+    @Path("/jsonRawValue")
+    Response getJsonRawValue();
+
+    @GET
+    @Path("/jsonValue")
+    Response getJsonValue();
+
+    @GET
+    @Path("/jsonRootName")
+    Response getJsonRootName() throws JsonProcessingException;
 }

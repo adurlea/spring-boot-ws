@@ -64,6 +64,39 @@ Endpoint
 Endpoint 
 
     localhost:8080/basicJacksonMarshalling/jsonPropertyOrder
+    
+#### @JsonRawValue
+    
+    Example using annotation @JsonRawValue
+    When used @JsonRawValue we can inject raw json in an variable  
+    and having it serialised as collection of plain elements for the variable element in the json response. 
+    See difference between element [jsonRawValue] and [jsonNoRawValue]                      
+    
+Endpoint 
+    
+    localhost:8080/basicJacksonMarshalling/jsonRawValue
+    
+#### @JsonValue
+    
+    Example using annotation @JsonValue
+    When used @JsonValue it will indicate the single method that should be used to serialize the entire object.
+    
+Endpoint 
+    
+    localhost:8080/basicJacksonMarshalling/jsonValue
+    
+#### @JsonRootName
+    
+    Example using annotation @JsonRootName
+    When used @JsonRootName, when wrapping is enabled, allow you to specify the root name to use in the serialisation of the entity.
+    In this example I used @JsonRootName("explication") on the bean JsonRootNameBean
+    This means that instead of serializing something like  
+        {"JsonRootNameBean" : { "id": 1, "name": "some explication" } }  we will have 
+        { "explication" : { "id": 1, "name": "some explication" } }
+        
+Endpoint 
+    
+    localhost:8080/basicJacksonMarshalling/jsonRootName
 
 # Run and Build
 ## DOCKER
