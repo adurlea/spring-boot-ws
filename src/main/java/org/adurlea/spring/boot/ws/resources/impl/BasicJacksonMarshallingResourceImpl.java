@@ -8,6 +8,8 @@ import org.adurlea.spring.boot.ws.resources.BasicJacksonMarshallingResource;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.core.Response;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,6 +24,7 @@ import static com.fasterxml.jackson.databind.SerializationFeature.WRAP_ROOT_VALU
  */
 @Component
 public class BasicJacksonMarshallingResourceImpl implements BasicJacksonMarshallingResource {
+    // SERIALIZATION ANNOTATIONS
 
     @Override
     public Response getJsonAnyGetter() {
@@ -67,7 +70,7 @@ public class BasicJacksonMarshallingResourceImpl implements BasicJacksonMarshall
     @Override
     public Response getJsonRawValue() {
         JsonRawValueBean bean = new JsonRawValueBean("Using @JsonRawValue we can inject raw json in an variable " +
-        "and having it serialised as collection of plain elements for the variable element in the json response. " +
+        "and having it serialized as an collection of plain elements for the variable element in the json response. " +
                 "See difference between element [jsonRawValue] and [jsonNoRawValue]");
         bean.setJsonRawValue("{\"JsonRawValueAttr\":\"JsonRawValueVal\"}");
         bean.setJsonNoRawValue("{\"JsonNoRawValueAttr\":\"JsonNoRawValueVal\"}");
@@ -105,5 +108,34 @@ public class BasicJacksonMarshallingResourceImpl implements BasicJacksonMarshall
         }
 
         return Response.ok().entity(beanJson).build();
+    }
+
+    @Override
+    public Response getJsonSerialize() {
+        JsonSerializeBean bean = new JsonSerializeBean();
+        bean.setName("Using @JsonSerialize allow to use a custom serializer to serializer the entity. " +
+                "See difference between [serializedDate] using annotation and " +
+                "[noSerializedDate] not using the annotation");
+        SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
+        try {
+            bean.setSerializedDate(df.parse("29-11-2018 12:00:00"));
+            bean.setNoSerializedDate(df.parse("29-11-2018 12:00:00"));
+        } catch (ParseException e) {
+            return Response.serverError().entity("Error parsing date 29-11-2018 12:00:00").build();
+        }
+
+        return Response.ok().entity(bean).build();
+    }
+
+    // DESERIALIZATION ANNOTATIONS
+
+
+    @Override
+    public Response postJsonCreator(JsonCreatorBean bean) {
+        if(bean != null){
+            return Response.ok().entity(bean).build();
+        } else {
+            return Response.serverError().entity("Error deserialize entity").build();
+        }
     }
 }

@@ -6,20 +6,27 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import org.adurlea.spring.boot.ws.conf.SpringBootWsApplication;
 import org.adurlea.spring.boot.ws.entities.*;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
 
 /**
  * Created by adurlea on 28/11/18.
@@ -35,6 +42,18 @@ public class BasicJacksonMarshallingResourceImplTest {
 
     @Autowired
     private TestRestTemplate restTemplate;
+
+    @Before
+    public void setUp(){
+        restTemplate.getRestTemplate().setInterceptors(
+                Collections.singletonList(
+                        (request, body, execution) -> {
+                            request.getHeaders().clear();
+                            request.getHeaders().add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON + ";charset=utf-8");
+                            request.getHeaders().add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON + ";charset=utf-8");
+                            return execution.execute(request, body);
+                        }));
+    }
 
     @Test
     public void when_getJsonAnyGetter() throws Exception {
@@ -60,19 +79,21 @@ public class BasicJacksonMarshallingResourceImplTest {
 
 
         // WHEN
-        ResponseEntity<String> entity = restTemplate.getForEntity(MessageFormat.format(URL, String.valueOf(this.port),
+
+        ResponseEntity<String> entity = restTemplate.
+                getForEntity(MessageFormat.format(URL, String.valueOf(this.port),
                 "jsonAnyGetter"), String.class);
 
         // THEN
         Assert.assertNotNull(entity);
-        Assert.assertEquals(Response.ok().build().getStatus(), entity.getStatusCodeValue());
+        Assert.assertEquals(Response.Status.OK.getStatusCode(), entity.getStatusCodeValue());
         String resultedJson = entity.getBody();
         Assert.assertNotNull(resultedJson);
         Assert.assertEquals(expectedJson, resultedJson);
     }
 
     @Test
-    public void when_getJsonGetter() throws Exception {
+    public void when_getJsonGetter() {
         // GIVEN
         JsonGetterBean expectedBean = new JsonGetterBean();
         expectedBean.setId(1);
@@ -115,7 +136,7 @@ public class BasicJacksonMarshallingResourceImplTest {
     public void when_getJsonRawValue() throws Exception {
         // GIVEN
         JsonRawValueBean bean = new JsonRawValueBean("Using @JsonRawValue we can inject raw json in an variable " +
-                "and having it serialised as collection of plain elements for the variable element in the json response. " +
+                "and having it serialized as an collection of plain elements for the variable element in the json response. " +
                 "See difference between element [jsonRawValue] and [jsonNoRawValue]");
         bean.setJsonRawValue("{\"JsonRawValueAttr\":\"JsonRawValueVal\"}");
         bean.setJsonNoRawValue("{\"JsonNoRawValueAttr\":\"JsonNoRawValueVal\"}");
@@ -177,9 +198,61 @@ public class BasicJacksonMarshallingResourceImplTest {
         Assert.assertEquals(expectedJson, resultedJson);
     }
 
+    @Test
+    public void when_getJsonSerialize() throws Exception {
+        // GIVEN
+        JsonSerializeBean bean = new JsonSerializeBean();
+        bean.setName("Using @JsonSerialize allow to use a custom serializer to serializer the entity. " +
+                "See difference between [serializedDate] using annotation and " +
+                "[noSerializedDate] not using the annotation");
+        SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
+        bean.setSerializedDate(df.parse("29-11-2018 12:00:00"));
+        bean.setNoSerializedDate(df.parse("29-11-2018 12:00:00"));
+
+        String expectedJson = getExpectedJson(bean, false);
+
+        // WHEN
+        ResponseEntity<String> entity = restTemplate.getForEntity(MessageFormat.format(URL,
+                String.valueOf(this.port), "jsonSerialize"), String.class);
+
+        // THEN
+        Assert.assertNotNull(entity);
+        Assert.assertEquals(Response.ok().build().getStatus(), entity.getStatusCodeValue());
+        String resultedJson = entity.getBody();
+        Assert.assertNotNull(resultedJson);
+        Assert.assertEquals(expectedJson, resultedJson);
+    }
+
+    @Test
+    public void when_postJsonCreator() throws Exception {
+        // GIVEN
+        String expectedName = "Using @JsonCreator with @JsonProperty can be usefull when the json " +
+        "sent contans an element or elements  with other name than our entity. " +
+                "This way the deserializer can match the received names with the entity names " +
+                "without needing to change the entity. " +
+                "See difference between input and output autour de element someName";
+        int expectedId = 1;
+        String json = "{\"id\":" + expectedId + ",\"someName\":\"" + expectedName + "\"}";
+
+        // WHEN
+        ResponseEntity<JsonCreatorBean> entity = restTemplate.postForEntity(MessageFormat.format(URL,
+                String.valueOf(this.port), "jsonCreator"), json, JsonCreatorBean.class);
+
+
+        // THEN
+        Assert.assertNotNull(entity);
+        Assert.assertEquals(Response.ok().build().getStatus(), entity.getStatusCodeValue());
+        JsonCreatorBean resultedbean = entity.getBody();
+        Assert.assertNotNull(resultedbean);
+        Assert.assertEquals(resultedbean.getId(), expectedId);
+        Assert.assertEquals(resultedbean.getName(), expectedName);
+    }
+
     private String getExpectedJson(Object bean, boolean isWrapEnabled) throws JsonProcessingException {
-        return new
-                ObjectMapper().configure(SerializationFeature.WRAP_ROOT_VALUE, isWrapEnabled).writeValueAsString(bean);
+        return new ObjectMapper()
+                .disable(WRITE_DATES_AS_TIMESTAMPS)
+                .configure(SerializationFeature.WRAP_ROOT_VALUE, isWrapEnabled)
+                .writeValueAsString(bean);
     }
 
 }

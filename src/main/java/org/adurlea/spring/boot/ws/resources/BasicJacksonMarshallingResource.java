@@ -1,10 +1,9 @@
 package org.adurlea.spring.boot.ws.resources;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import org.adurlea.spring.boot.ws.entities.JsonCreatorBean;
+
+import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -14,6 +13,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
  */
 @Path("basicJacksonMarshalling")
 @Produces({ APPLICATION_JSON + ";charset=utf-8" })
+@Consumes({ APPLICATION_JSON + ";charset=utf-8" })
 public interface BasicJacksonMarshallingResource {
 
     @GET
@@ -38,5 +38,13 @@ public interface BasicJacksonMarshallingResource {
 
     @GET
     @Path("/jsonRootName")
-    Response getJsonRootName() throws JsonProcessingException;
+    Response getJsonRootName();
+
+    @GET
+    @Path("/jsonSerialize")
+    Response getJsonSerialize();
+
+    @POST
+    @Path("/jsonCreator")
+    Response postJsonCreator(JsonCreatorBean bean);
 }
