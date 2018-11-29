@@ -72,8 +72,8 @@ Endpoint
 
     Serialization example using annotation @JsonPropertyOrder
     When used @JsonPropertyOrder we can specify the order of serialisation of elements of the object   
-    We declare the elements in the order: id, name 
-    but we will specify the following order: name, id                              
+    We declare the elements in the order: {id, name} 
+    but we will specify the following order: {name, id}                              
 
 Request type: 
 
