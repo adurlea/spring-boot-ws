@@ -1,13 +1,17 @@
 package org.adurlea.spring.boot.ws.resources.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.mrbean.MrBeanModule;
 import org.adurlea.spring.boot.ws.entities.*;
 import org.adurlea.spring.boot.ws.resources.BasicJacksonMarshallingResource;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -24,6 +28,10 @@ import static com.fasterxml.jackson.databind.SerializationFeature.WRAP_ROOT_VALU
  */
 @Component
 public class BasicJacksonMarshallingResourceImpl implements BasicJacksonMarshallingResource {
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
     // SERIALIZATION ANNOTATIONS
 
     @Override
@@ -95,16 +103,9 @@ public class BasicJacksonMarshallingResourceImpl implements BasicJacksonMarshall
 
         String beanJson;
         try {
-            beanJson = new ObjectMapper()
-                    .disable(FAIL_ON_EMPTY_BEANS)
-                    .disable(WRITE_DATES_AS_TIMESTAMPS)
-                    .disable(FAIL_ON_UNKNOWN_PROPERTIES)
-                    .enable(ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
-                    .enable(WRAP_ROOT_VALUE)
-                    .registerModule(new MrBeanModule())
-                    .setSerializationInclusion(NON_NULL).writeValueAsString(bean);
+            beanJson = objectMapper.copy().enable(WRAP_ROOT_VALUE).writeValueAsString(bean);
         } catch (JsonProcessingException e) {
-            return Response.serverError().entity("Error serializing bean").build();
+            return Response.serverError().entity("Error deserializing json").build();
         }
 
         return Response.ok().entity(beanJson).build();
@@ -137,5 +138,22 @@ public class BasicJacksonMarshallingResourceImpl implements BasicJacksonMarshall
         } else {
             return Response.serverError().entity("Error deserialize entity").build();
         }
+    }
+
+    @Override
+    public Response postJacksonInject(String json, Integer id) {
+        if (StringUtils.isBlank(json)) {
+            return Response.serverError().entity("Parameter json invalide").build();
+        }
+
+        JacksonInjectBean bean;
+        try {
+            bean = objectMapper.reader(new InjectableValues.Std().addValue(Integer.class, id))
+                    .forType(JacksonInjectBean.class).readValue(json);
+        } catch (IOException e) {
+            return Response.serverError().entity("Error deserializing json").build();
+        }
+
+        return Response.ok().entity(bean).build();
     }
 }

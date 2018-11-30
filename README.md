@@ -167,6 +167,29 @@ Body:
 Endpoint 
     
     localhost:8080/basicJacksonMarshalling/jsonCreator
+    
+#### @JacksonInject
+    
+    Deserialization example using annotation @JacksonInject
+    Using @JacksonInject can be usefull when we want to inject a value that is not from the json data. 
+    In this example I'm using the value provided by path param to inject it into {id} variable of JacksonInjectBean along with the json data in the body.
+     
+Request type: 
+
+    POST
+    
+Headers:
+    
+    Content-Type : application/json;charset=utf-8
+    
+Body:
+    
+     {"name":"Using @JacksonInject can be usefull when we want to inject a value that is not from the json data. In this example I'm using the value provided by path param to inject it into {id} variable of JacksonInjectBean along with the json data in the body."}
+        
+Endpoint 
+    
+    localhost:8080/basicJacksonMarshalling/jacksonInject/{id}
+    
 
 # Run and Build
 ## DOCKER

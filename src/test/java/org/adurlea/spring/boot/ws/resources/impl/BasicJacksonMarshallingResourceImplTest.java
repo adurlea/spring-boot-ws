@@ -248,11 +248,33 @@ public class BasicJacksonMarshallingResourceImplTest {
         Assert.assertEquals(resultedbean.getName(), expectedName);
     }
 
+    @Test
+    public void when_postJacksonInject() throws Exception {
+        // GIVEN
+        String expectedName = "Using @JacksonInject can be useful when we want to inject a value " +
+                "that is not from the json data. In this example I'm using the value provided by path param " +
+                "to inject it into {id} variable of JacksonInjectBean along with the json data in the body.";
+        int expectedId = 10;
+        String json = "{\"name\":\"" + expectedName + "\"}";
+
+        // WHEN
+        ResponseEntity<JsonCreatorBean> entity = restTemplate.postForEntity(MessageFormat.format(URL,
+                String.valueOf(this.port), "jacksonInject/" + expectedId), json, JsonCreatorBean.class);
+
+
+        // THEN
+        Assert.assertNotNull(entity);
+        Assert.assertEquals(Response.ok().build().getStatus(), entity.getStatusCodeValue());
+        JsonCreatorBean resultedbean = entity.getBody();
+        Assert.assertNotNull(resultedbean);
+        Assert.assertEquals(resultedbean.getId(), expectedId);
+        Assert.assertEquals(resultedbean.getName(), expectedName);
+    }
+
     private String getExpectedJson(Object bean, boolean isWrapEnabled) throws JsonProcessingException {
         return new ObjectMapper()
                 .disable(WRITE_DATES_AS_TIMESTAMPS)
                 .configure(SerializationFeature.WRAP_ROOT_VALUE, isWrapEnabled)
                 .writeValueAsString(bean);
     }
-
 }
