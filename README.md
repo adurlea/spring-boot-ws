@@ -1,4 +1,4 @@
-# spring-boot-ws
+# spring-boot-ws 
 The goal of the project is to build an RESTful WS with:
 - Spring Boot
 - Docker
