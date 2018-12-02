@@ -1,8 +1,10 @@
 package org.adurlea.spring.boot.ws.resources;
 
 
-import org.adurlea.spring.boot.ws.entities.JacksonInjectBean;
+import org.adurlea.spring.boot.ws.entities.JsonAnySetterBean;
 import org.adurlea.spring.boot.ws.entities.JsonCreatorBean;
+import org.adurlea.spring.boot.ws.entities.JsonDeserializeBean;
+import org.adurlea.spring.boot.ws.entities.JsonSetterBean;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -54,4 +56,16 @@ public interface BasicJacksonMarshallingResource {
     @POST
     @Path("/jacksonInject/{" + REQUEST_ID + "}")
     Response postJacksonInject(String json, @PathParam(REQUEST_ID) Integer id);
+
+    @POST
+    @Path("/jsonAnySetter")
+    Response postJsonAnySetter(JsonAnySetterBean bean);
+
+    @POST
+    @Path("/jsonSetter")
+    Response postJsonSetter(JsonSetterBean bean);
+
+    @POST
+    @Path("/jsonDeserialize")
+    Response postJsonDeserialize(JsonDeserializeBean bean);
 }

@@ -156,4 +156,31 @@ public class BasicJacksonMarshallingResourceImpl implements BasicJacksonMarshall
 
         return Response.ok().entity(bean).build();
     }
+
+    @Override
+    public Response postJsonAnySetter(JsonAnySetterBean bean) {
+        if(bean != null){
+            return Response.ok().entity(bean).build();
+        } else {
+            return Response.serverError().entity("Error deserialize entity").build();
+        }
+    }
+
+    @Override
+    public Response postJsonSetter(JsonSetterBean bean) {
+        if(bean != null){
+            return Response.ok().entity(bean).build();
+        } else {
+            return Response.serverError().entity("Error deserialize entity").build();
+        }
+    }
+
+    @Override
+    public Response postJsonDeserialize(JsonDeserializeBean bean) {
+        if(bean != null){
+            return Response.ok().entity(bean).build();
+        } else {
+            return Response.serverError().entity("Error deserialize entity").build();
+        }
+    }
 }

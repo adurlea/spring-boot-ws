@@ -190,6 +190,90 @@ Endpoint
     
     localhost:8080/basicJacksonMarshalling/jacksonInject/{id}
     
+#### @JsonAnySetter
+    
+    Deserialization example using annotation @JsonAnySetter
+    @JsonAnySetter is the corespondant of @JsonAnyGetter but is used for deserialization. 
+    It allow us the flexibility to add the plain elements of the json to a map. See difference between input and output.
+     
+Request type: 
+
+    POST
+    
+Headers:
+    
+    Content-Type : application/json;charset=utf-8
+    
+Body:
+    
+     {
+         "name":"@JsonAnySetter is the corespondant of @JsonAnyGetter but is used for deserialization. It allow us the flexibility to add the plain elements of the json to a map. See difference between input and output.",
+         "jsonAnyGetterAttr1":"jsonAnyGetterVal1",
+         "jsonAnyGetterAttr2":"jsonAnyGetterVal2"
+     }
+        
+Endpoint 
+    
+    localhost:8080/basicJacksonMarshalling/jsonAnySetter
+
+#### @JsonSetter
+    
+    Deserialization example using annotation @JsonSetter
+    When used @JsonSetter we mark the specified methode as a setter methode. 
+    The variables   
+            bookNameJsonGetter with the setter methode : @JsonSetter("nameJsonSetter")
+                                                     public String setBookNameJsonSetter(String bookNameJsonSetter) 
+                will be shown as output                                           
+            ON THE OTHER SIDE
+            bookNameNoJsonSetter with the getter methode : public String setBookNameNoJsonSetter(String bookNameNoJsonSetter) 
+                will not be shown as output   
+     
+Request type: 
+
+    POST
+    
+Headers:
+    
+    Content-Type : application/json;charset=utf-8
+    
+Body:
+    
+     {
+     	"id":1,
+         "nameJsonSetter":"Non conform setter using @JsonSetter and it will be shown in the output.",
+         "nameNoJsonSetter":"Non conform setter not using @JsonSetter and it will not be shown in the output."
+     }
+        
+Endpoint 
+    
+    localhost:8080/basicJacksonMarshalling/jsonSetter
+    
+#### @JsonDeserialize
+    
+    Deserialization example using annotation @JsonDeserialize
+    When used @JsonDeserialize we can use a custom deserializer to deserializer the entity. 
+    See the date input format difference between [serializedDate] using annotation and [noSerializedDate] not using the annotation  
+     
+Request type: 
+
+    POST
+    
+Headers:
+    
+    Content-Type : application/json;charset=utf-8
+    
+Body:
+    
+     {
+     	"name":"When used @JsonDeserialize we can use a custom deserializer to deserializer the entity. See the date format difference between [serializedDate] using annotation and [noSerializedDate] not using the annotation",
+         "deserializedDate":"02-12-2018 23:00:00",
+         "noDeserializedDate":"2018-12-02T23:00:00.000+0000"
+     }
+        
+Endpoint 
+    
+    localhost:8080/basicJacksonMarshalling/jsonDeserialize   
+    
 
 # Run and Build
 ## DOCKER

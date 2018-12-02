@@ -21,6 +21,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.text.MessageFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.HashMap;
@@ -244,8 +245,8 @@ public class BasicJacksonMarshallingResourceImplTest {
         Assert.assertEquals(Response.ok().build().getStatus(), entity.getStatusCodeValue());
         JsonCreatorBean resultedbean = entity.getBody();
         Assert.assertNotNull(resultedbean);
-        Assert.assertEquals(resultedbean.getId(), expectedId);
-        Assert.assertEquals(resultedbean.getName(), expectedName);
+        Assert.assertEquals(expectedId, resultedbean.getId());
+        Assert.assertEquals(expectedName, resultedbean.getName());
     }
 
     @Test
@@ -267,9 +268,92 @@ public class BasicJacksonMarshallingResourceImplTest {
         Assert.assertEquals(Response.ok().build().getStatus(), entity.getStatusCodeValue());
         JsonCreatorBean resultedbean = entity.getBody();
         Assert.assertNotNull(resultedbean);
-        Assert.assertEquals(resultedbean.getId(), expectedId);
-        Assert.assertEquals(resultedbean.getName(), expectedName);
+        Assert.assertEquals(expectedId, resultedbean.getId());
+        Assert.assertEquals(expectedName, resultedbean.getName());
     }
+
+    @Test
+    public void when_postJsonAnySetter() {
+        // GIVEN
+        JsonAnySetterBean expectedBean = new JsonAnySetterBean();
+        expectedBean.setName("@JsonAnySetter is the corespondent of @JsonAnyGetter but is used for deserialization. " +
+                "It allow us the flexibility to add the plain elements of the json to a map. " +
+                "See difference between input and output.");
+        expectedBean.addProperties("jsonAnySetterAttr1", "jsonAnySetterVal1");
+        expectedBean.addProperties("jsonAnySetterAttr2", "jsonAnySetterVal2");
+        String json = "{\"name\":\"" + expectedBean.getName() + "\"," +
+                "\"jsonAnySetterAttr1\":\"jsonAnySetterVal1\"," +
+                "\"jsonAnySetterAttr2\":\"jsonAnySetterVal2\"" +
+                "}";
+
+
+        // WHEN
+        ResponseEntity<JsonAnySetterBean> entity = restTemplate.postForEntity(MessageFormat.format(URL,
+                String.valueOf(this.port), "jsonAnySetter"), json, JsonAnySetterBean.class);
+
+
+        // THEN
+        Assert.assertNotNull(entity);
+        Assert.assertEquals(Response.ok().build().getStatus(), entity.getStatusCodeValue());
+        JsonAnySetterBean resultedbean = entity.getBody();
+        Assert.assertNotNull(resultedbean);
+        Assert.assertEquals(expectedBean, resultedbean);
+    }
+
+    @Test
+    public void when_postJsonSetter() {
+        // GIVEN
+        JsonSetterBean expectedBean = new JsonSetterBean();
+        expectedBean.setId(1);
+        expectedBean.setBookNameJsonSetter("Non conform setter using @JsonSetter and it will be shown in the output.");
+        String json = "{\"id\":1," +
+                "\"nameJsonSetter\":\"Non conform setter using @JsonSetter and it will be shown in the output.\"," +
+                "\"nameNoJsonSetter\":\"Non conform setter not using @JsonSetter and it will not be shown in the output.\"" +
+                "}";
+
+
+        // WHEN
+        ResponseEntity<JsonSetterBean> entity = restTemplate.postForEntity(MessageFormat.format(URL,
+                String.valueOf(this.port), "jsonSetter"), json, JsonSetterBean.class);
+
+
+        // THEN
+        Assert.assertNotNull(entity);
+        Assert.assertEquals(Response.ok().build().getStatus(), entity.getStatusCodeValue());
+        JsonSetterBean resultedbean = entity.getBody();
+        Assert.assertNotNull(resultedbean);
+        Assert.assertEquals(expectedBean, resultedbean);
+    }
+
+    /*@Test
+    public void when_postJsonDeserialize() throws ParseException {
+        // GIVEN
+        JsonDeserializeBean expectedBean = new JsonDeserializeBean();
+        expectedBean.setName("When used @JsonDeserialize we can use a custom deserializer to deserializer the entity. " +
+                "See the date format difference between [serializedDate] using annotation and [noSerializedDate] " +
+                "not using the annotation");
+        SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
+        expectedBean.setDeserializedDate(df.parse("02-12-2018 12:00:00"));
+        expectedBean.setNoDeserializedDate(df.parse("02-12-2018 12:00:00"));
+
+        String json = "{\"name\":\"" + expectedBean.getName() + "\"," +
+                "\"deserializedDate\":\"02-12-2018 23:00:00\"," +
+                "\"noDeserializedDate\":\"2018-12-02T23:00:00.000\"" +
+                "}";
+
+
+        // WHEN
+        ResponseEntity<JsonDeserializeBean> entity = restTemplate.postForEntity(MessageFormat.format(URL,
+                String.valueOf(this.port), "jsonDeserialize"), json, JsonDeserializeBean.class);
+
+
+        // THEN
+        Assert.assertNotNull(entity);
+        Assert.assertEquals(Response.ok().build().getStatus(), entity.getStatusCodeValue());
+        JsonDeserializeBean resultedbean = entity.getBody();
+        Assert.assertNotNull(resultedbean);
+        Assert.assertEquals(expectedBean, resultedbean);
+    }*/
 
     private String getExpectedJson(Object bean, boolean isWrapEnabled) throws JsonProcessingException {
         return new ObjectMapper()
