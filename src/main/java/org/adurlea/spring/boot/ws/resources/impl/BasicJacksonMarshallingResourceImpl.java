@@ -3,7 +3,6 @@ package org.adurlea.spring.boot.ws.resources.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.module.mrbean.MrBeanModule;
 import org.adurlea.spring.boot.ws.entities.*;
 import org.adurlea.spring.boot.ws.resources.BasicJacksonMarshallingResource;
 import org.apache.commons.lang3.StringUtils;
@@ -17,10 +16,6 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
-import static com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT;
-import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
-import static com.fasterxml.jackson.databind.SerializationFeature.*;
 import static com.fasterxml.jackson.databind.SerializationFeature.WRAP_ROOT_VALUE;
 
 /**
